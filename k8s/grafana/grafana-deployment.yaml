@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana:10.2.0
+          ports:
+            - containerPort: 3000
+          env:
+            - name: GF_SECURITY_ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: grafana-admin
+                  key: admin-user
+
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: grafana-admin
+                  key: admin-password
+
+            - name: INFLUXDB_ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: influx-auth
+                  key: INFLUXDB_ADMIN_USER
+
+            - name: INFLUXDB_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: influx-auth
+                  key: INFLUXDB_ADMIN_PASSWORD
+
+            - name: INFLUXDB_DB
+              valueFrom:
+                secretKeyRef:
+                  name: influx-auth
+                  key: INFLUXDB_DB
+
+          volumeMounts:
+            - name: grafana-datasource
+              mountPath: /etc/grafana/provisioning/datasources
+
+            - name: grafana-dashboard-providers
+              mountPath: /etc/grafana/provisioning/dashboards
+
+            - name: grafana-dashboards
+              mountPath: /var/lib/grafana/dashboards
+      volumes:
+        - name: grafana-datasource
+          configMap:
+            name: grafana-datasource
+
+        - name: grafana-dashboard-providers
+          configMap:
+            name: grafana-dashboard-providers
+
+        - name: grafana-dashboards
+          configMap:
+            name: grafana-k6-dashboards

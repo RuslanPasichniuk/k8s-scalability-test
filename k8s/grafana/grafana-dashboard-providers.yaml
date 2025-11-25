@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-k6-dashboards
+  namespace: monitoring
+data:
+  k6.json: |
+    {
+      "id": null,
+      "title": "k6 Load Test Overview",
+      "schemaVersion": 30,
+      "version": 1,
+      "panels": [
+        {
+          "type": "graph",
+          "title": "Requests per second",
+          "targets": [
+            {
+              "query": "SELECT sum(\"value\") FROM \"http_reqs\" WHERE $timeFilter GROUP BY time(1s) fill(null)"
+            }
+          ]
+        },
+        {
+          "type": "graph",
+          "title": "Latency p95",
+          "targets": [
+            {
+              "query": "SELECT percentile(\"value\",95) FROM \"http_req_duration\" WHERE $timeFilter GROUP BY time(1s) fill(null)"
+            }
+          ]
+        }
+      ]
+    }
+  k8s.json: |
+    {
+      "id": null,
+      "title": "Kubernetes Pod Scaling",
+      "schemaVersion": 30,
+      "version": 1,
+      "panels": [
+        {
+          "type": "graph",
+          "title": "Pod CPU usage",
+          "targets": [
+            {
+              "expr": "sum(rate(container_cpu_usage_seconds_total{pod=~\"apache.*\"}[1m]))"
+            }
+          ]
+        }
+      ]
+    }

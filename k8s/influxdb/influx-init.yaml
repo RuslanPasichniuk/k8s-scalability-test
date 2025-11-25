@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: influxdb-init
+  namespace: monitoring
+data:
+  init.iql: |
+    CREATE USER admin WITH PASSWORD 'admin123' WITH ALL PRIVILEGES;
+    CREATE DATABASE k6;
+    CREATE RETENTION POLICY "autogen" ON "k6" DURATION 30d REPLICATION 1 DEFAULT;

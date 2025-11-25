@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: influxdb
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: influxdb
+  template:
+    metadata:
+      labels:
+        app: influxdb
+    spec:
+      containers:
+        - name: influxdb
+          image: influxdb:1.8
+          ports:
+            - containerPort: 8086
+          env:
+            - name: INFLUXDB_HTTP_AUTH_ENABLED
+              value: "true"
+          envFrom:
+            - secretRef:
+                name: influx-auth
+          volumeMounts:
+            - name: influxdb-storage
+              mountPath: /var/lib/influxdb
+            - name: influxdb-init
+              mountPath: /docker-entrypoint-initdb.d
+      volumes:
+        - name: influxdb-storage
+          persistentVolumeClaim:
+            claimName: influxdb-pvc
+        - name: influxdb-init
+          configMap:
+            name: influxdb-init

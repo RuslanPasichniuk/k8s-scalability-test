@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apache-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apache-demo
+  template:
+    metadata:
+      labels:
+        app: apache-demo
+    spec:
+      containers:
+        - name: apache
+          image: httpd:2.4
+          resources:  # [INFO] Apache consumes CPU, so HPA will have some available for scaling.
+            requests:
+              cpu: "100m"
+            limits:
+              cpu: "500m"
+          ports:
+            - containerPort: 80
