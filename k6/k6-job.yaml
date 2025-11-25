@@ -1,0 +1,47 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: k6-job-load-test
+  namespace: monitoring
+spec:
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 360    # зберігати pod 6 хв
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: k6
+          image: grafana/k6:latest
+
+          # ---------------------
+          #   Get creds from Secret
+          # ---------------------
+          envFrom:
+            - secretRef:
+                name: influx-auth
+
+          # ---------------------
+          #   Mount test scripts
+          # ---------------------
+          volumeMounts:
+            - name: k6-script
+              mountPath: /scripts
+
+          # ---------------------
+          #   k6 Command
+          # ---------------------
+          command: ["sh", "-c"]
+          args:
+            - |
+              # Build URL to InfluxDB from env vars
+              HOST="influxdb.monitoring.svc.cluster.local:8086"
+              URL="http://${INFLUXDB_ADMIN_USER}:${INFLUXDB_ADMIN_PASSWORD}@${HOST}/${INFLUXDB_DB}"
+              echo "Writing to InfluxDB at: $URL"
+              k6 run /scripts/load-test.js --out influxdb=$URL
+              echo "[DEBUG] Check the actual running pod"
+              echo "kubectl get pods -n monitoring -l job-name=k6-job-load-test"
+
+      volumes:
+        - name: k6-script
+          configMap:
+            name: k6-script

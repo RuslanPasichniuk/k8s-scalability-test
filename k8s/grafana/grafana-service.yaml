@@ -3,6 +3,8 @@ kind: Service
 metadata:
   name: grafana
   namespace: monitoring
+  labels:
+    app: grafana
 spec:
   type: ClusterIP
   ports:

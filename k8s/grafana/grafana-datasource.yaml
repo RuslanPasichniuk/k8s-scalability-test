@@ -12,11 +12,9 @@ data:
       - name: InfluxDB-k6
         type: influxdb
         access: proxy
-        url: ${INFLUXDB_URL} #http://influxdb.monitoring.svc.cluster.local:8086
-        database: $INFLUXDB_DB
-        user: $INFLUXDB_ADMIN_USER
+        url: http://${INFLUXDB_HOST}:${INFLUXDB_PORT}
+        database: ${INFLUXDB_DB}
+        user: ${INFLUXDB_ADMIN_USER}
         secureJsonData:
-          password: $INFLUXDB_ADMIN_PASSWORD
-        isDefault: true
-        version: 1
-        editable: true
+          password: ${INFLUXDB_ADMIN_PASSWORD}
+        isDefault: true 

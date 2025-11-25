@@ -1,18 +1,67 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: grafana-dashboard-providers
+  name: grafana-k6-dashboards
   namespace: monitoring
 data:
-  dashboards.yaml: |
-    apiVersion: 1
-    providers:
-      - name: 'k6-dashboards'
-        orgId: 1
-        folder: 'k6 Tests'
-        type: file
-        disableDeletion: false
-        editable: true
-        updateIntervalSeconds: 10
-        options:
-          path: /var/lib/grafana/dashboards
+  k6-k8s-dashboard.json: |
+    {
+      "id": null,
+      "title": "K6 Load & Kubernetes Scaling",
+      "schemaVersion": 30,
+      "version": 1,
+      "refresh": "1s",
+      "panels": [
+    {
+      "type": "graph",
+      "title": "RPS (Requests per second)",
+      "targets": [
+        {"query": "SELECT sum(\"value\") FROM \"http_reqs\" WHERE $timeFilter GROUP BY time(1s) fill(null)"}
+      ],
+      "yaxes":[{"format":"reqps","label":"RPS","min":0},{"format":"short"}],
+      "interval":"1s"
+    },
+    {
+      "type": "graph",
+      "title": "Latency (p95)",
+      "targets":[{"query":"SELECT percentile(\"value\",95) FROM \"http_req_duration\" WHERE $timeFilter GROUP BY time(1s) fill(null)"}],
+      "yaxes":[{"format":"ms","label":"Latency","min":0},{"format":"short"}],
+      "interval":"1s"
+    },
+    {
+      "type": "graph",
+      "title": "Errors",
+      "targets":[{"query":"SELECT sum(\"value\") FROM \"http_req_failed\" WHERE $timeFilter GROUP BY time(1s) fill(0)"}],
+      "yaxes":[{"format":"short","label":"Errors","min":0},{"format":"short"}],
+      "interval":"1s"
+    },
+    {
+      "type": "graph",
+      "title": "Data Sent",
+      "targets":[{"query":"SELECT sum(\"value\") FROM \"data_sent\" WHERE $timeFilter GROUP BY time(1s) fill(null)"}],
+      "yaxes":[{"format":"bytes","label":"Sent","min":0},{"format":"short"}],
+      "interval":"1s"
+    },
+    {
+      "type": "graph",
+      "title": "Data Received",
+      "targets":[{"query":"SELECT sum(\"value\") FROM \"data_received\" WHERE $timeFilter GROUP BY time(1s) fill(null)"}],
+      "yaxes":[{"format":"bytes","label":"Received","min":0},{"format":"short"}],
+      "interval":"1s"
+    },
+    {
+      "type": "graph",
+      "title": "VUs",
+      "targets":[{"query":"SELECT last(\"value\") FROM \"vus\" WHERE $timeFilter GROUP BY time(1s) fill(null)"}],
+      "yaxes":[{"format":"short","label":"VUs","min":0},{"format":"short"}],
+      "interval":"1s"
+    },
+    {
+      "type": "graph",
+      "title": "Iteration Duration",
+      "targets":[{"query":"SELECT last(\"value\") FROM \"iteration_duration\" WHERE $timeFilter GROUP BY time(1s) fill(null)"}],
+      "yaxes":[{"format":"ms","label":"Iteration Duration","min":0},{"format":"short"}],
+      "interval":"1s"
+    }
+    ]
+    }

@@ -1,3 +1,5 @@
+## Use [deploy-influxdb.sh](deploy-influxdb.sh) for deploy 
+
 
 ### What will heppend after deploy:
 - InfluxDB will create authorization (INFLUXDB_HTTP_AUTH_ENABLED=true). 
