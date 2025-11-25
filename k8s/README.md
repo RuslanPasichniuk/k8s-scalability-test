@@ -20,6 +20,7 @@ kubectl apply -f apache-hpa.yaml
 ## Monitor HPA
 ```
 kubectl get hpa -w
+kubectl get hpa <name>
 kubectl get pods -w
 ```
 
