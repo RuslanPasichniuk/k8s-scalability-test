@@ -214,7 +214,7 @@ k6 run k6/load-test.js            # if k6 installed localy
 # or
 docker run --rm -v $(pwd)/k6:/scripts loadimpact/k6 run /scripts/load-test.js
 ```
-
+![Grafana dashbords.png](Grafana%20dashbords.png)
 
 ### [INFO] що показати під час демо
 - Чи збільшується CPU в pod (черга CPU). 

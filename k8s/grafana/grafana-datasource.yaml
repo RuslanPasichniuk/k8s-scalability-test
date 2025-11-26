@@ -10,6 +10,7 @@ data:
     apiVersion: 1
     datasources:
       - name: InfluxDB-k6
+        uid: influxdb-k6
         type: influxdb
         access: proxy
         url: http://${INFLUXDB_HOST}:${INFLUXDB_PORT}
@@ -17,4 +18,4 @@ data:
         user: ${INFLUXDB_ADMIN_USER}
         secureJsonData:
           password: ${INFLUXDB_ADMIN_PASSWORD}
-        isDefault: true 
+        isDefault: true

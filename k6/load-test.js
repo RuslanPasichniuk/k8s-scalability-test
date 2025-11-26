@@ -5,8 +5,8 @@ import { Trend } from 'k6/metrics';
 
 export let options = {
     stages: [
-        { duration: '30s', target: 200 }, // Ramp up to 150 VUs
-        { duration: '30s', target: 200 }, // Hold at 150 VUs
+        { duration: '60s', target: 200 }, // Ramp up to 150 VUs
+        { duration: '60s', target: 200 }, // Hold at 150 VUs
         { duration: '30s', target: 0 },   // Hold at 150 VUs
     ]
 };
