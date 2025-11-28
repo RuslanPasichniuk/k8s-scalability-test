@@ -34,13 +34,13 @@ echo "5.1 Delete k6 script configmap..."
 kubectl delete configmap k6-script -n $NAMESPACE_TEST || true
 
 echo "5.2 Creating k6 script configmap..."
-kubectl create configmap k6-script --from-file=../k6/load-test.js -n monitoring
+kubectl create configmap k6-script --from-file=../../k6/load-test.js -n monitoring
 
 echo "6. Delete k6 Job if exists..."
 kubectl delete job k6-job-load-test -n $NAMESPACE_TEST || true
 
 echo "7. Applying k6 job..."
-kubectl apply -f ../k6/k6-job.yaml
+kubectl apply -f ../../k6/k6-job.yaml
 
 echo "8. Waiting for job to start..."
 sleep 5

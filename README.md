@@ -10,10 +10,10 @@ This repository demonstrates how Kubernetes scales pods under load using
 
 ### Steps
 1. Deploy InfluxDB [deploy-influxdb.sh](k8s/influxdb/deploy-influxdb.sh)
+2. Deploy Prometheus [deploy-prometheus.sh](k8s/prometheus/deploy-prometheus.sh)
 2. Deploy Grafana [deploy-grafana.sh](k8s/grafana/deploy-grafana.sh)
-3. Deploy Apache + Service + HPA 
-4. Start K6 load test
-   5. you can use [deploy-apache-run-test.sh](k8s/deploy-apache-run-test.sh)
+3. Deploy Apache + HPA 
+4. Start K6 load test, [deploy-apache-run-test.sh](k8s/apache/deploy-apache-run-test.sh)
 3. Observe scaling behavior in Kubernetes
 4. Visualize CPU and replica count in Grafana
 
@@ -21,17 +21,28 @@ This repository demonstrates how Kubernetes scales pods under load using
 ### project structure:
 ```
 k8s-scalability-test/
+│ 
 ├── k8s/
-| |-- grafana/
-| |-- influxdb/
-│ ├── apache-deployment.yaml
-│ ├── apache-service.yaml
-│ ├── apache-hpa.yaml
-| |-- deploy-apache-run-test.sh
-│ └── README.md
+│     ├── grafana/
+│     │      ├── deploy-grafana.sh
+│     │      └── ...
+│     ├── influxdb/
+│     │      ├── deploy-influx.sh
+│     │      └── ...
+│     ├── prometheus/
+│     │      ├── deploy-prometheus.sh
+│     │      └── ...
+│     └── apache/
+│            ├── apache-deployment.yaml
+│            ├── apache-service.yaml
+│            ├── apache-hpa.yaml
+│            ├── deploy-apache-run-test.sh
+│            └── README.md
+│
 ├── k6/
-│ ├── load-test.js
-│ └── k6-job.yaml
+│     ├── load-test.js
+│     └── k6-job.yaml
+│
 └── README.md
 ```
 
@@ -169,7 +180,7 @@ kubectl get secret prometheus-grafana -n monitoring -o jsonpath='{.data.admin-us
 
 ```
 
-### _You can execute all the steps listed below by running the script_. [deploy-apache-run-test.sh](k8s/deploy-apache-run-test.sh)
+### _You can execute all the steps listed below by running the script_. [deploy-apache-run-test.sh](k8s/apache/deploy-apache-run-test.sh)
 ### Deploy test service Apache 
 Apache Deployment + Service + HPA
 ```shell
