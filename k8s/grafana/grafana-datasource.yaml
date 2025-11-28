@@ -19,3 +19,10 @@ data:
         secureJsonData:
           password: ${INFLUXDB_ADMIN_PASSWORD}
         isDefault: true
+      - name: Prometheus
+        uid: prometheus
+        type: prometheus
+        access: proxy
+        url: http://prometheus.monitoring.svc.cluster.local:9090
+        isDefault: false
+        #editable: false  

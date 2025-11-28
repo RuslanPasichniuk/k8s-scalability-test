@@ -30,32 +30,68 @@ data:
         {
           "collapsed": true,
           "gridPos": {
-            "h": 1,
+            "h": 14,
             "w": 24,
             "x": 0,
             "y": 0
           },
           "id": 68,
-          "panels": [
-            {
-              "content": "### To choose which measurements to show, use the **Measurements** drop-down in the top left corner!\n\nK6 collects metrics for several phases during the HTTP request lifetime.\n\nThe combined delays for the application and network (send, wait, recieve) are available in this metric:\n  * **http_req_duration**       _( Total time for request, excluding time spent blocked (http_req_blocked), DNS lookup (http_req_looking_up) and TCP connect (http_req_connecting) time. )_\n\nThis metric can also be broken down into these metrics:\n  * **http_req_tls_handshaking**     _( Time spent handshaking TLS session with remote host. )_\n  * **http_req_sending**      _( Time spent sending data to remote host.  )_\n  * **http_req_waiting**      _( Time spent waiting for response from remote host (a.k.a. \"time to first byte\", or \"TTFB\"). )_\n  * **http_req_receiving**       _( Time spent receiving response data from remote host. )_\n\nThese metrics measure delays and durations on the client:\n\n  * **http_req_blocked**     _( Time spent blocked (waiting for a free TCP connection slot) before initiating request.  )_\n  * **http_req_looking_up**     _( Time spent looking up remote host name in DNS. )_\n  * **http_req_connecting**     _( Time spent establishing TCP connection to remote host. )_\n\n\n### View official K6.io documentation here: [https://docs.k6.io/docs/result-metrics][1]\n\n\n[1]: https://docs.k6.io/docs/result-metrics\n\n",
-              "gridPos": {
-                "h": 7,
-                "w": 24,
-                "x": 0,
-                "y": 1
-              },
-              "id": 66,
-              "links": [],
-              "mode": "markdown",
-              "title": "",
-              "transparent": true,
-              "type": "text"
-            }
-          ],
+          "panels": [],
           "repeat": null,
-          "title": "Documentation",
+          "title": "Kubernetes / Prometheus",
           "type": "row"
+        },
+        { "id": 2,
+          "type":"graph",
+          "title":"Pods - count",
+          "datasource":{"uid":"prometheus"},
+          "targets":[{"expr":"count(kube_pod_info{pod=~\"apache.*\"})"}],
+          "yaxes":[{"format":"short","min":0},{"format":"short"}],
+          "xaxis": {"mode": "time", "show": true, "values": []},
+          "yaxis": {"align": false},
+          "gridPos": {"h": 6, "w": 6, "x": 0,  "y": 0}
+        },
+        { "id": 3,
+          "type":"graph",
+          "title":"Pod CPU (sum per pod)",
+          "datasource":{"uid":"prometheus"},
+          "targets":[{"expr":"sum(rate(container_cpu_usage_seconds_total{pod=~\"apache.*\"}[1m])) by (pod)"}],
+          "yaxes":[{"format":"short","min":0},{"format":"short"}],
+          "xaxis": {"mode": "time", "show": true, "values": []},
+          "yaxis": {"align": false},
+          "gridPos": {"h": 6, "w": 6, "x": 6,  "y": 0}
+        },
+        { "id": 71,
+          "type":"graph",
+          "title":"CPU utilization / request ratio",
+          "datasource":{"uid":"prometheus"},
+          "targets":[{"expr": "sum(rate(container_cpu_usage_seconds_total{pod=~\"apache.*\"}[1s])) / sum(kube_pod_container_resource_requests_cpu_cores{pod=~\"apache.*\"})"}],
+          "yaxes":[{"format":"short","min":0},{"format":"short"}],
+          "xaxis": {"mode": "time", "show": true, "values": []},
+          "yaxis": {"align": false},
+          "gridPos": {"h": 6, "w": 6, "x": 12,  "y": 0}
+        },
+        {
+          "id": 72,
+          "type": "graph",
+          "title": "HPA desired vs current replicas",
+          "datasource": { "uid": "prometheus" },
+          "targets": [ {"expr": "kube_horizontalpodautoscaler_status_desired_replicas","legendFormat": "desired"}, {"expr": "kube_horizontalpodautoscaler_status_current_replicas", "legendFormat": "current"} ],
+          "yaxes":[{"format":"short","min":0},{"format":"short"}],
+          "xaxis": {"mode": "time", "show": true, "values": []},
+          "yaxis": {"align": false},
+          "gridPos": { "h": 6, "w": 6, "x": 18,  "y": 0 }
+        },
+        {
+          "id": 73,
+          "type": "graph",
+          "title": "Memory usage (per pod)",
+          "datasource": { "uid": "prometheus" },
+          "targets": [{"expr": "container_memory_usage_bytes{pod=~\"apache.*\"}"}],
+          "yaxes":[{"format":"short","min":0},{"format":"short"}],
+          "xaxis": {"mode": "time", "show": true, "values": []},
+          "yaxis": {"align": false},
+          "gridPos": { "h": 6, "w": 6, "x": 0,  "y": 1 }
         },
         {
           "collapsed": false,
@@ -1867,7 +1903,8 @@ data:
       "style": "dark",
       "tags": [
         "k6",
-        "load testing"
+        "load testing",
+        "ruslan demo"
       ],
       "templating": {
         "list": [

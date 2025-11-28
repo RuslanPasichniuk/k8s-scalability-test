@@ -3,20 +3,12 @@ This repository demonstrates how Kubernetes scales pods under load using
  - Apache HTTP server,
  - Horizontal Pod Autoscaler (HPA),
  - K6 load generator. 
- - Observability: Grafana + Prometheus for visualization
+ - Observability: Grafana + Prometheus for visualization, see on dashboards 
    - Grafana gets: 
-   - [TODO] Kubernetes metrics from Prometheus 
+   - Kubernetes metrics from Prometheus 
    - K6 metrics from InfluxDB
-   
- В результаті у Grafana ти бачиш:
-  - K6 RPS (requests per second)
-  - Latency (p90 / p95 / p99)
-  - CPU / Memory pods 
-  - Pod count (autoscaling in real time)
-  - Startup time 
-  - Load balancing behaviour
 
-## Steps
+### Steps
 1. Deploy InfluxDB [deploy-influxdb.sh](k8s/influxdb/deploy-influxdb.sh)
 2. Deploy Grafana [deploy-grafana.sh](k8s/grafana/deploy-grafana.sh)
 3. Deploy Apache + Service + HPA 
@@ -26,7 +18,7 @@ This repository demonstrates how Kubernetes scales pods under load using
 4. Visualize CPU and replica count in Grafana
 
 
-## project structure:
+### project structure:
 ```
 k8s-scalability-test/
 ├── k8s/
@@ -43,7 +35,7 @@ k8s-scalability-test/
 └── README.md
 ```
 
-## Step by step for the newcomers:
+### Step by step for the newcomers:
 Preconditions: Installed: gcloud, kubectl, and helm. (optionally k6 locally)
 
 ###  Adjust GCP CLI and project:
@@ -65,6 +57,22 @@ verify:
 gcloud container clusters get-credentials showcase-cluster --zone=europe-west1-b
 kubectl get nodes
 ```
+
+### Install metrics-server
+**kubectl top** and **HPA** needs to see metrics CPU
+
+```shell
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+# verify:
+kubectl get deployment metrics-server -n kube-system
+kubectl top nodes
+kubectl top pods
+```
+[DEBUG] If **kubectl top** doesn't work — wait for a minute and check the logs
+```bash
+kubectl -n kube-system logs deployment/metrics-server
+```
+
 ### Create namespace 
 ```shell 
 # name-space.yaml
@@ -98,6 +106,15 @@ echo "6. Create Service InfluxDB"
 kubectl apply -f influxdb/influxdb-service.yaml
 ```
 
+### Deploy Prometheus or use [deploy-prometheus.sh](k8s/prometheus/deploy-prometheus.sh)
+```shell
+echo "1. Applying Kube-State-Metrics..."
+kubectl apply -f kube-state-metrics.yaml --force
+
+echo "2. Applying Prometheus ..."
+kubectl apply -f prometheus.yaml --force
+```
+
 ### Deploy Grafana or use [deploy-grafana.sh](k8s/grafana/deploy-grafana.sh)
 ```shell
 echo "1. Applying Grafana secret..."
@@ -120,19 +137,6 @@ kubectl apply -f grafana-service.yaml --force
 
 echo "7. Waiting for Grafana pod to be ready..."
 kubectl wait --for=condition=ready pod -l app=grafana -n "$NAMESPACE" --timeout=120s
-```
-
-### Install metrics-server ( kubectl top and HPA needs to see metrics CPU)
-```shell
-kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
-# verify:
-kubectl get deployment metrics-server -n kube-system
-kubectl top nodes
-kubectl top pods
-```
-If **kubectl top** doesn't work — wait for a minute and check the logs 
-```bash
-kubectl -n kube-system logs deployment/metrics-server
 ```
 
 ### [TODO] install Prometheus + Grafana, via packet manager HELM 
@@ -165,9 +169,9 @@ kubectl get secret prometheus-grafana -n monitoring -o jsonpath='{.data.admin-us
 
 ```
 
-### You can execute all the steps listed below by running the script. [deploy-apache-run-test.sh](k8s/deploy-apache-run-test.sh)
+### _You can execute all the steps listed below by running the script_. [deploy-apache-run-test.sh](k8s/deploy-apache-run-test.sh)
 ### Deploy test service Apache 
-**Apache Deployment + Service + HPA**
+Apache Deployment + Service + HPA
 ```shell
 kubectl apply -f k8s/apache-deployment.yaml
 kubectl apply -f k8s/apache-service.yaml
@@ -214,6 +218,16 @@ k6 run k6/load-test.js            # if k6 installed localy
 # or
 docker run --rm -v $(pwd)/k6:/scripts loadimpact/k6 run /scripts/load-test.js
 ```
+
+### Grafana dashboards:
+As a result on Grafana you see:
+- K6 RPS (requests per second)
+- Latency (p90 / p95 / p99)
+- CPU / Memory pods
+- Pod count (autoscaling in real time)
+- Startup time
+- Load balancing behaviour
+
 ![Grafana dashbords.png](Grafana%20dashbords.png)
 
 ### [INFO] що показати під час демо

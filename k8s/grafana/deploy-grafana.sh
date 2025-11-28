@@ -4,6 +4,7 @@ NAMESPACE="monitoring"
 SERVICE="grafana"
 LOCAL_PORT=3000
 REMOTE_PORT=3000
+LABELS_APP="grafana"
 
 echo "********* DEPLOY GRAFANA in ns $NAMESPACE ***********"
 set -e
@@ -20,7 +21,7 @@ set -e
 echo "1. Applying Grafana secret..."
 kubectl apply -f grafana-secrets.yaml --force
 
-echo "2. Applying Grafana-Datasource (InfluxDB v1) ..."
+echo "2. Applying Grafana-Datasource (InfluxDB v1 and Prometheus) ..."
 kubectl apply -f grafana-datasource.yaml --force
 
 echo "3. Applying Grafana-Dashboards provisioning ..."
@@ -44,14 +45,14 @@ echo "8. Starting port-forward in background...
 kubectl port-forward svc/${SERVICE} ${LOCAL_PORT}:${REMOTE_PORT} -n "${NAMESPACE}" >/dev/null 2>&1 &
 echo ""
 echo "======================================="
-kubectl get pods -n $NAMESPACE -l app=grafana
+kubectl get pods -n $NAMESPACE -l app=${LABELS_APP}
 sleep 2
 kubectl get svc -n $NAMESPACE
 
 PF_PID=$!
 echo ""
 echo "=== 👀 [ DEBUG ] ==="
-POD_NAME=$(kubectl get pods -n "$NAMESPACE" -l app=influxdb | grep influxdb | awk '{print $1}')
+POD_NAME=$(kubectl get pods -n "$NAMESPACE" -l app="${LABELS_APP}" | grep "${LABELS_APP}" | awk '{print $1}')
 echo "** Port-forward started with PID: ${PF_PID} **"
 echo "  Grafana is available at: http://localhost:${LOCAL_PORT}"
 echo "  To stop port-forward run: kill ${PF_PID}"
